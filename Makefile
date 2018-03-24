@@ -15,7 +15,7 @@ load_default_data:
 set_mysql_config:
 	docker exec -it mysql mysql_config_editor set --host=localhost --user=redmine --password
 
-memcached: _cache_store _gemfile install restart
+memcached: _cache_store _gemfile bundle_install restart
 
 _cache_store:
 	docker exec redmine sh -c "echo 'config.cache_store = :mem_cache_store, \"memcached\"' > config/additional_environment.rb"
@@ -29,7 +29,7 @@ start:
 stop:
 	docker-compose stop
 
-install:
+bundle_install:
 	docker exec redmine bundle install
 
 restart:
