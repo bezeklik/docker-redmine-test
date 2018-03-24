@@ -6,6 +6,9 @@ _build:
 _firewall-https:
 	firewall-cmd --permanent --add-service=http{,s}
 
+_firewall-smtp:
+	firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="172.18.0.0/16" service name="smtp" accept'
+
 _firewall-reload:
 	firewall-cmd --reload
 
