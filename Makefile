@@ -1,6 +1,12 @@
-build:
+build: _build _firewall-https _firewall-reload
+
+_build:
 	docker-compose up --detach --build
-	firewall-cmd --permanent --add-service=http{,s} && \
+
+_firewall-https:
+	firewall-cmd --permanent --add-service=http{,s}
+
+_firewall-reload:
 	firewall-cmd --reload
 
 load_default_data:
@@ -9,11 +15,13 @@ load_default_data:
 set_mysql_config:
 	docker exec -it mysql mysql_config_editor set --host=localhost --user=redmine --password
 
-memcached:
-	docker exec redmine sh -c "echo 'config.cache_store = :mem_cache_store, \"memcached\"' > config/additional_environment.rb" && \
-	docker exec redmine sh -c "echo \"gem 'dalli'\" > Gemfile.local" && \
-	@make install && \
-	@make restart
+memcached: _cache_store _gemfile install restart
+
+_cache_store:
+	docker exec redmine sh -c "echo 'config.cache_store = :mem_cache_store, \"memcached\"' > config/additional_environment.rb"
+
+_gemfile:
+	docker exec redmine sh -c "echo \"gem 'dalli'\" > Gemfile.local"
 
 start:
 	docker-compose up --detach
@@ -33,8 +41,7 @@ down:
 tail:
 	docker-compose logs --follow
 
-backup:
-	@make backup_db && make_backup_files
+backup: backup_db backup_files
 
 backup_db:
 	docker exec mysql mysqldump redmine | gzip > /var/www/redmine/backup/redmine_db_`date +%F`.sql.gz
