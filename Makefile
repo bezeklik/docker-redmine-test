@@ -44,6 +44,9 @@ down:
 tail:
 	docker-compose logs --follow
 
+login:
+	docker exec --interactive --tty --env LINES=$LINES --env COLUMNS=$COLUMNS redmine bash
+
 backup: backup_db backup_files
 
 backup_db:
