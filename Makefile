@@ -49,6 +49,23 @@ backup_db:
 backup_files:
 	cd /var/www/redmine && tar cvf backup/redmine_files_`date +%F`.tar.gz files
 
+make_volume_dir:
+	mkdir -p /var/www/redmine
+	semanage fcontext -a -t svirt_sandbox_file_t "$_(/.*)?"
+	restorecon -Rv /var/www/redmine
+
+install_docker:
+	yum -y install epel-release
+	yum -y install yum-{axelget,plugin-rpm-warm-cache,utils}
+	yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+	yum -y install docker-ce
+	systemctl start docker
+	systemctl enable docker
+
+install_docker-compose:
+	curl -L $(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'Linux-x86_64"' | grep url | cut -d'"' -f4) -o /usr/local/bin/docker-compose
+	chmod +x /usr/local/bin/docker-compose
+
 define HELP_TEXT
 make start
 make stop
